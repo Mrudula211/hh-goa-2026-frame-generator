@@ -12,7 +12,6 @@ const statusDot = $("#statusDot");
 const nameInput = $("#nameInput");
 const roleInput = $("#roleInput");
 const titleInput = $("#titleInput");
-const dateToggle = $("#dateToggle");
 const frameMessage = $("#frameMessage");
 const handleInput = $("#handleInput");
 const fields = $("#fields");
@@ -23,9 +22,26 @@ let format = "id";
 let objectUrl = null;
 
 const palettes = {
-  green:"#075c3b", deep:"#022d20", lime:"#d7ef35", yellow:"#f4d928",
-  pink:"#ff167c", cream:"#f4efd9", paper:"#f7f4e7"
+  green:"#0B6839", deep:"#084E2B", lime:"#FFFFFF", yellow:"#FEE101",
+  pink:"#FF0080", cream:"#FFFBE8", paper:"#FFFBE8", near_black:"#050B07"
 };
+
+// Builder ID card template — exported from Canva, transparent hole cut where the
+// photo goes so the ring/badge artwork sits on top of whatever photo the user picks.
+const idTemplate = new Image();
+let idTemplateLoaded = false;
+idTemplate.onload = () => { idTemplateLoaded = true; if (format === "id") render(); };
+idTemplate.src = "assets/id-template.png";
+
+// Card geometry measured directly off the Canva export (591x1004 native canvas).
+const ID_CARD = { w: 591, h: 1004 };
+const ID_PHOTO = { cx: 296, cy: 367, r: 147 };
+const ID_TICKET = { cx: 296, baseline: 572, maxWidth: 360 };
+const ID_STACK = { x: 172, top: 665, maxWidth: 372, lineHeight: 17, size: 15 };
+const ID_TITLE = { x: 172, baseline: 785, maxWidth: 350, size: 26 };
+const ID_PILL = { x: 207, y: 808, w: 166, h: 44, r: 22 };
+
+const cardId = "HHG26-2026-" + String(Math.floor(1000 + Math.random() * 9000));
 
 function updateStatus(message, state = "waiting") {
   statusText.textContent = message;
@@ -117,65 +133,74 @@ function starburst(x,y,r,color){
   ctx.closePath();ctx.fill();ctx.restore();
 }
 function drawId(){
-  canvas.width=1200;canvas.height=1500;
-  ctx.fillStyle=palettes.green;ctx.fillRect(0,0,1200,1500);
-  decorativeFrame();
-
-  ctx.fillStyle=palettes.deep;ctx.fillRect(78,110,1044,1010);
+  // Render at 2x the Canva export's native 591x1004 for a crisper download,
+  // then do all drawing in native-coordinate space via ctx.scale.
+  const SCALE = 2;
+  canvas.width = ID_CARD.w * SCALE;
+  canvas.height = ID_CARD.h * SCALE;
   ctx.save();
-  ctx.globalAlpha=.14;ctx.strokeStyle=palettes.lime;ctx.lineWidth=1;
-  for(let i=0;i<13;i++){ctx.beginPath();ctx.arc(950,190,i*48,0,Math.PI*2);ctx.stroke()}
+  ctx.scale(SCALE, SCALE);
+
+  // base fill in case the template image hasn't loaded yet
+  ctx.fillStyle = palettes.green;
+  ctx.fillRect(0, 0, ID_CARD.w, ID_CARD.h);
+
+  // 1 · Photo, cover-fit and clipped to the ring's hole
+  const { cx: pcx, cy: pcy, r: pr } = ID_PHOTO;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(pcx, pcy, pr, 0, Math.PI*2); ctx.clip();
+  if (photo) {
+    fitCover(photo, pcx-pr, pcy-pr, pr*2, pr*2);
+  } else {
+    ctx.fillStyle = "#0a7650";
+    ctx.fillRect(pcx-pr, pcy-pr, pr*2, pr*2);
+  }
   ctx.restore();
 
-  logo(125,190,.72);
-  text("BUILDER ID",1050,177,18,"DM Mono",palettes.lime,"right",500);
-  text("HH GOA 2026",1050,205,15,"DM Mono",palettes.cream,"right",500);
+  // 2 · Canva template — ring, badges, illustrations, labels — drawn on top,
+  // transparent where the photo shows through
+  if (idTemplateLoaded) {
+    ctx.drawImage(idTemplate, 0, 0, ID_CARD.w, ID_CARD.h);
+  }
 
-  const px=125,py=285,pw=950,ph=615;
-  ctx.save();roundedRect(ctx,px,py,pw,ph,8);ctx.clip();
-  if(photo)fitCover(photo,px,py,pw,ph);else{ctx.fillStyle="#0a7650";ctx.fillRect(px,py,pw,ph)}
-  ctx.restore();
-  ctx.strokeStyle=palettes.yellow;ctx.lineWidth=5;ctx.strokeRect(px,py,pw,ph);
+  const name = (nameInput.value || "YOUR NAME").toUpperCase();
+  const role = roleInput.value || "Python · React · Next.js";
+  const title = (titleInput.value || "THE SIGNAL ARCHITECT").toUpperCase();
 
-  ctx.fillStyle=palettes.pink;ctx.fillRect(125,925,950,8);
-  
-  const name=(nameInput.value||"YOUR NAME").toUpperCase();
-  const role=(roleInput.value||"BUILDER").toUpperCase();
-  const title=(titleInput.value||"THE SIGNAL ARCHITECT").toUpperCase();
-
-  // Better name sizing and handling
-  let nameSize = 58;
-  while (measureText(name, nameSize, "DM Sans", 800) > 730 && nameSize > 32) {
+  // 3 · Name, inside the ticket bar
+  let nameSize = 40;
+  while (measureText(name, nameSize, "Playfair Display", 800) > ID_TICKET.maxWidth && nameSize > 22) {
     nameSize -= 2;
   }
-  text(name, 125, 1010, nameSize, "DM Sans", palettes.cream, "left", 800);
-  
-  text(role, 125, 1052, 17, "DM Mono", palettes.lime, "left", 500);
-  
-  // Better title wrapping with dynamic font size
-  let titleSize = 32;
-  const titleMaxWidth = 730;
-  const words = title.split(/\s+/);
-  let estimatedLines = Math.ceil((words.length * 20) / (titleMaxWidth / 4));
-  
-  while (estimatedLines > 3 && titleSize > 20) {
+  text(name, ID_TICKET.cx, ID_TICKET.baseline, nameSize, "Playfair Display", palettes.deep, "center", 800);
+
+  // 4 · Stack / role — wrapped into the cream panel's first slot (bullet-separated, up to 3 lines)
+  const stackLine = role.split(/\s*(?:[•,\n]|\s{2,})\s*/).filter(Boolean).join(" · ") || role;
+  wrapText(stackLine, ID_STACK.x, ID_STACK.top, ID_STACK.maxWidth, ID_STACK.lineHeight, ID_STACK.size, "DM Sans", palettes.deep, 600);
+
+  // 5 · Builder title, with a yellow highlighter swipe underneath
+  let titleSize = ID_TITLE.size;
+  while (measureText(title, titleSize, "Playfair Display", 800) > ID_TITLE.maxWidth && titleSize > 16) {
     titleSize -= 2;
-    estimatedLines = Math.ceil((words.length * 20) / (titleMaxWidth / 4));
   }
-  
-  wrapText(title, 125, 1100, titleMaxWidth, 50, titleSize, "Playfair Display", palettes.yellow, 800);
+  const titleWidth = measureText(title, titleSize, "Playfair Display", 800);
+  ctx.save();
+  ctx.strokeStyle = palettes.yellow; ctx.lineWidth = 5; ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(ID_TITLE.x, ID_TITLE.baseline + 7);
+  ctx.lineTo(ID_TITLE.x + titleWidth, ID_TITLE.baseline + 6);
+  ctx.stroke();
+  ctx.restore();
+  text(title, ID_TITLE.x, ID_TITLE.baseline, titleSize, "Playfair Display", palettes.deep, "left", 800);
 
-  starburst(1000, 1165, 50, palettes.pink);
-  text("✦", 1000, 1177, 30, "DM Sans", "#fff", "center", 800);
+  // 6 · Card ID pill — repaint over the template's placeholder text with the generated ID
+  roundedRect(ctx, ID_PILL.x, ID_PILL.y, ID_PILL.w, ID_PILL.h, ID_PILL.r);
+  ctx.fillStyle = palettes.pink; ctx.fill();
+  ctx.strokeStyle = palettes.yellow; ctx.lineWidth = 2.5;
+  roundedRect(ctx, ID_PILL.x, ID_PILL.y, ID_PILL.w, ID_PILL.h, ID_PILL.r); ctx.stroke();
+  text(cardId, ID_PILL.x + ID_PILL.w/2, ID_PILL.y + ID_PILL.h/2 + 5, 14, "DM Mono", palettes.cream, "center", 700);
 
-  if(dateToggle.checked){
-    text("GOA, INDIA  ·  28 — 31 OCT 2026", 125, 1310, 18, "DM Mono", palettes.cream, "left", 500);
-  } else {
-    text("#FRAMEINGOA", 125, 1310, 18, "DM Mono", palettes.cream, "left", 500);
-  }
-  text("#FRAMEINGOA", 1075, 1310, 18, "DM Mono", palettes.lime, "right", 500);
-  text("LESS NOISE. MORE SIGNAL.", 125, 1390, 14, "DM Mono", palettes.cream, "left", 500);
-  text("247 BUILDERS", 1075, 1390, 14, "DM Mono", palettes.cream, "right", 500);
+  ctx.restore();
 }
 function drawFrame(){
   canvas.width=1200;canvas.height=1200;
@@ -184,25 +209,28 @@ function drawFrame(){
   logo(86,130,.55);
   text("GOA, INDIA  ·  28 — 31 OCT 2026",1110,120,16,"DM Mono",palettes.cream,"right",500);
 
-  const px=72,py=210,pw=1056,ph=710;
+  const px=72,py=210,pw=1056,ph=700;
   ctx.save();roundedRect(ctx,px,py,pw,ph,8);ctx.clip();
   if(photo)fitCover(photo,px,py,pw,ph);else{ctx.fillStyle="#0a7650";ctx.fillRect(px,py,pw,ph)}
   ctx.restore();
   ctx.strokeStyle=palettes.yellow;ctx.lineWidth=7;ctx.strokeRect(px,py,pw,ph);
 
-  ctx.fillStyle=palettes.deep;ctx.fillRect(72,952,1056,150);
-  
+  // pink accent strip — ties the frame back to the ID card's accent colour
+  ctx.fillStyle=palettes.pink;ctx.fillRect(px,py+ph+14,pw,7);
+
+  ctx.fillStyle=palettes.deep;ctx.fillRect(72,934,1056,150);
+
   const msg=(frameMessage.value||"BUILD SOMETHING THAT MATTERS").toUpperCase();
   const handle=(handleInput.value||"@BUILDER").toUpperCase();
-  
+
   // Dynamic message sizing
   let msgSize = 31;
   while (measureText(msg, msgSize, "Playfair Display", 800) > 1000 && msgSize > 18) {
     msgSize -= 2;
   }
-  
-  text(msg, 600, 1012, msgSize, "Playfair Display", palettes.yellow, "center", 800);
-  text(handle + "   ·   #FRAMEINGOA", 600, 1055, 14, "DM Mono", palettes.lime, "center", 500);
+
+  text(msg, 600, 994, msgSize, "Playfair Display", palettes.yellow, "center", 800);
+  text(handle + "   ·   #FRAMEINGOA", 600, 1037, 14, "DM Mono", palettes.lime, "center", 500);
   text("HH GOA 2026", 86, 1150, 17, "DM Mono", palettes.cream, "left", 500);
   text("LESS NOISE. MORE SIGNAL.", 1114, 1150, 17, "DM Mono", palettes.cream, "right", 500);
 }
@@ -257,7 +285,7 @@ async function loadFile(file){
     console.error(e);
     updateStatus("Photo format not supported", "waiting");
     const msg=document.createElement("div");
-    msg.style.cssText="position:fixed;top:16px;right:16px;background:#ff167c;color:white;padding:12px 16px;border-radius:4px;font-size:12px;z-index:1000;font-family:DM Sans;font-weight:600;box-shadow:0 8px 24px rgba(255,22,124,.25);animation:slideIn 300ms ease-out;max-width:300px";
+    msg.style.cssText="position:fixed;top:16px;right:16px;background:#FF0080;color:white;padding:12px 16px;border-radius:4px;font-size:12px;z-index:1000;font-family:DM Sans;font-weight:600;box-shadow:0 8px 24px rgba(255,0,128,.25);animation:slideIn 300ms ease-out;max-width:300px";
     msg.textContent="This photo format is not supported. Try JPG, PNG, WEBP, or HEIC.";
     document.body.appendChild(msg);
     setTimeout(()=>msg.remove(),4000);
@@ -273,7 +301,7 @@ photoInput.addEventListener("change",e=>loadFile(e.target.files[0]));
 ["dragleave","drop"].forEach(ev=>uploadBox.addEventListener(ev,e=>{e.preventDefault();uploadBox.classList.remove("drag")}));
 uploadBox.addEventListener("drop",e=>loadFile(e.dataTransfer.files[0]));
 
-[nameInput,roleInput,titleInput,dateToggle,frameMessage,handleInput].forEach(el=>el.addEventListener("input",render));
+[nameInput,roleInput,titleInput,frameMessage,handleInput].forEach(el=>el.addEventListener("input",render));
 $("#regenTitle").addEventListener("click",generateTitle);
 
 function canvasBlob(){
@@ -304,7 +332,7 @@ shareBtn.addEventListener("click",async()=>{
   
   // Show informational toast
   const msg=document.createElement("div");
-  msg.style.cssText="position:fixed;top:16px;right:16px;background:#075c3b;color:white;padding:14px 16px;border-radius:4px;font-size:11px;z-index:1000;font-family:DM Sans;font-weight:500;box-shadow:0 8px 24px rgba(2,45,32,.25);max-width:320px;line-height:1.5";
+  msg.style.cssText="position:fixed;top:16px;right:16px;background:#0B6839;color:white;padding:14px 16px;border-radius:4px;font-size:11px;z-index:1000;font-family:DM Sans;font-weight:500;box-shadow:0 8px 24px rgba(8,78,43,.25);max-width:320px;line-height:1.5";
   msg.textContent="X is opening in a new tab. Download your PNG and attach it to the pre-filled post.";
   document.body.appendChild(msg);
   setTimeout(()=>msg.remove(),5000);

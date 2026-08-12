@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#075c3b" />
+  <meta name="theme-color" content="#0B6839" />
   <meta name="description" content="HH Goa 2026 Builder Frame / ID Card Generator" />
   <title>FrameInGoa — HH Goa 2026</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -17,33 +17,53 @@
   <div class="noise"></div>
   <header class="topbar">
     <a class="brand" href="#">
-      <span class="brand-mark">HH</span>
-      <span>GOA <small>2026</small></span>
+      <span class="lockup">
+        <span class="lockup-line pink">HACKER</span>
+        <span class="lockup-line yellow">गोवा</span>
+        <span class="lockup-line pink">HOUSE</span>
+      </span>
     </a>
-    <div class="top-meta">28 — 31 OCT · GOA, INDIA</div>
+    <div class="top-meta"><span class="chev">›</span> 28 — 31 OCT · GOA, INDIA <span class="chev">‹</span></div>
     <a class="site-link" href="https://hhgoa.com/" target="_blank" rel="noreferrer">HHGOA.COM ↗</a>
   </header>
 
   <main>
     <section class="hero">
-      <div class="hero-decorative">
-        <div class="deco-element deco-1"></div>
-        <div class="deco-element deco-2"></div>
+      <div class="eyebrow">
+        <svg class="deco-sun" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <circle cx="20" cy="20" r="9" fill="var(--yellow)"/>
+          <g stroke="var(--yellow)" stroke-width="2.4" stroke-linecap="round">
+            <line x1="20" y1="1" x2="20" y2="7"/><line x1="20" y1="33" x2="20" y2="39"/>
+            <line x1="1" y1="20" x2="7" y2="20"/><line x1="33" y1="20" x2="39" y2="20"/>
+            <line x1="6" y1="6" x2="10.5" y2="10.5"/><line x1="29.5" y1="29.5" x2="34" y2="34"/>
+            <line x1="34" y1="6" x2="29.5" y2="10.5"/><line x1="10.5" y1="29.5" x2="6" y2="34"/>
+          </g>
+        </svg>
+        BUILDER ID GENERATOR <span class="star">✦</span>
       </div>
-      <div class="eyebrow"><span></span> BUILDER ID GENERATOR</div>
       <h1><span class="gradient-text">Put your build</span><br><em>in Goa.</em></h1>
       <p class="hero-subtitle">Upload a photo. Pick your format. Get a share-ready <strong>HH Goa 2026</strong> graphic instantly.</p>
       <div class="hero-meta">
         <div class="meta-item">
-          <span class="meta-icon">📸</span>
+          <svg class="meta-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 8.5C3 7.67 3.67 7 4.5 7H7l1.2-1.8c.3-.45.8-.7 1.33-.7h4.94c.53 0 1.03.25 1.33.7L17 7h2.5c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-15C3.67 19 3 18.33 3 17.5v-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3.4" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
           <small>JPG · PNG · WEBP · HEIC</small>
         </div>
         <div class="meta-item">
-          <span class="meta-icon">✨</span>
+          <svg class="meta-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3l1.6 4.9L18.5 9l-4.9 1.6L12 15.5l-1.6-4.9L5.5 9l4.9-1.6L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M18.5 15l.8 2.4L21.7 18.2l-2.4.8L18.5 21.4l-.8-2.4L15.3 18.2l2.4-.8L18.5 15Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          </svg>
           <small>No cropping needed</small>
         </div>
         <div class="meta-item">
-          <span class="meta-icon">⬇️</span>
+          <svg class="meta-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3.5v11.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M7.5 10.9 12 15.4l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4.5 17.5v1.5c0 .83.67 1.5 1.5 1.5h12c.83 0 1.5-.67 1.5-1.5v-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
           <small>Download or Share</small>
         </div>
       </div>
@@ -61,12 +81,26 @@
 
         <div class="format-selector" role="tablist">
           <button class="format-card active" data-format="id" role="tab" aria-selected="true">
-            <div class="format-icon">🆔</div>
+            <svg class="format-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect x="3" y="7" width="26" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
+              <circle cx="10.5" cy="14.5" r="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M6.5 21c.6-2.4 2.4-3.6 4-3.6s3.4 1.2 4 3.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 13h7.5M18 17h7.5M18 21h4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
             <div class="format-name">Builder ID</div>
             <div class="format-desc">Personalized badge</div>
           </button>
           <button class="format-card" data-format="frame" role="tab" aria-selected="false">
-            <div class="format-icon">🎨</div>
+            <svg class="format-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="12.5" stroke="currentColor" stroke-width="2"/>
+              <circle cx="16" cy="16" r="6.5" stroke="currentColor" stroke-width="2"/>
+              <circle cx="16" cy="6.6" r="1.6" fill="currentColor"/>
+              <circle cx="24.3" cy="11.3" r="1.6" fill="currentColor"/>
+              <circle cx="24.3" cy="20.7" r="1.6" fill="currentColor"/>
+              <circle cx="16" cy="25.4" r="1.6" fill="currentColor"/>
+              <circle cx="7.7" cy="20.7" r="1.6" fill="currentColor"/>
+              <circle cx="7.7" cy="11.3" r="1.6" fill="currentColor"/>
+            </svg>
             <div class="format-name">PFP Frame</div>
             <div class="format-desc">Social frame</div>
           </button>
@@ -92,7 +126,7 @@
           </label>
           <label>
             <span>STACK / ROLE</span>
-            <input id="roleInput" maxlength="34" placeholder="AI Engineer · Designer · Founder">
+            <input id="roleInput" maxlength="60" placeholder="Python · React · Next.js">
           </label>
           <label>
             <span>BUILDER TITLE</span>
@@ -100,10 +134,6 @@
               <input id="titleInput" maxlength="34" placeholder="The Signal Architect">
               <button id="regenTitle" class="mini-btn" type="button" title="Generate builder title">✦</button>
             </div>
-          </label>
-          <label class="check-row">
-            <input id="dateToggle" type="checkbox" checked>
-            <span>Show event dates</span>
           </label>
         </div>
 
@@ -190,10 +220,16 @@
     </section>
   </main>
 
-  <footer>
-    <span>LESS NOISE. MORE SIGNAL.</span>
-    <span>© HH GOA 2026 · <a href="https://hhgoa.com/" target="_blank" rel="noreferrer">HACKER HOUSE GOA</a></span>
-    <span>#FRAMEINGOA</span>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-line">HH GOA 2026 <span class="dot">•</span> GOA, INDIA</div>
+      <div class="footer-dates">— 28 – 31 OCT 2026 —</div>
+      <div class="footer-meta">
+        <span>LESS NOISE. MORE SIGNAL.</span>
+        <span>© HH GOA 2026 · <a href="https://hhgoa.com/" target="_blank" rel="noreferrer">HACKER HOUSE GOA</a></span>
+        <span>#FRAMEINGOA</span>
+      </div>
+    </div>
   </footer>
 
   <script src="app.js"></script>
