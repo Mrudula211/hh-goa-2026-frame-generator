@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#075c3b" />
+  <meta name="description" content="HH Goa 2026 Builder Frame / ID Card Generator" />
+  <title>FrameInGoa — HH Goa 2026</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">HH</span>
+      <span>GOA <small>2026</small></span>
+    </a>
+    <div class="top-meta">28 — 31 OCT · GOA, INDIA</div>
+    <a class="site-link" href="https://hhgoa.com/" target="_blank" rel="noreferrer">HHGOA.COM ↗</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-decorative">
+        <div class="deco-element deco-1"></div>
+        <div class="deco-element deco-2"></div>
+      </div>
+      <div class="eyebrow"><span></span> BUILDER ID GENERATOR</div>
+      <h1><span class="gradient-text">Put your build</span><br><em>in Goa.</em></h1>
+      <p class="hero-subtitle">Upload a photo. Pick your format. Get a share-ready <strong>HH Goa 2026</strong> graphic instantly.</p>
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-icon">📸</span>
+          <small>JPG · PNG · WEBP · HEIC</small>
+        </div>
+        <div class="meta-item">
+          <span class="meta-icon">✨</span>
+          <small>No cropping needed</small>
+        </div>
+        <div class="meta-item">
+          <span class="meta-icon">⬇️</span>
+          <small>Download or Share</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="panel controls">
+        <div class="panel-head">
+          <div>
+            <span class="step">01</span>
+            <h2>Create your ID</h2>
+          </div>
+          <span class="live-dot">LIVE</span>
+        </div>
+
+        <div class="format-selector" role="tablist">
+          <button class="format-card active" data-format="id" role="tab" aria-selected="true">
+            <div class="format-icon">🆔</div>
+            <div class="format-name">Builder ID</div>
+            <div class="format-desc">Personalized badge</div>
+          </button>
+          <button class="format-card" data-format="frame" role="tab" aria-selected="false">
+            <div class="format-icon">🎨</div>
+            <div class="format-name">PFP Frame</div>
+            <div class="format-desc">Social frame</div>
+          </button>
+        </div>
+
+        <div class="upload-box" id="uploadBox" role="button" tabindex="0" aria-label="Upload photo">
+          <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif" hidden aria-hidden="true">
+          <div class="upload-visual">
+            <div class="upload-icon">↑</div>
+          </div>
+          <div class="upload-text">
+            <strong>Drop your photo</strong>
+            <span>or <button class="inline-btn" id="browseBtn" type="button">choose a file</button></span>
+          </div>
+          <small>JPG · PNG · WEBP · HEIC · HEIF</small>
+          <div class="upload-tips">Auto-fit • No manual crop needed</div>
+        </div>
+
+        <div id="fields" class="fields">
+          <label>
+            <span>NAME</span>
+            <input id="nameInput" maxlength="28" placeholder="Your name" autocomplete="name">
+          </label>
+          <label>
+            <span>STACK / ROLE</span>
+            <input id="roleInput" maxlength="34" placeholder="AI Engineer · Designer · Founder">
+          </label>
+          <label>
+            <span>BUILDER TITLE</span>
+            <div class="input-with-action">
+              <input id="titleInput" maxlength="34" placeholder="The Signal Architect">
+              <button id="regenTitle" class="mini-btn" type="button" title="Generate builder title">✦</button>
+            </div>
+          </label>
+          <label class="check-row">
+            <input id="dateToggle" type="checkbox" checked>
+            <span>Show event dates</span>
+          </label>
+        </div>
+
+        <div id="frameOptions" class="fields hidden">
+          <label>
+            <span>FRAME MESSAGE</span>
+            <input id="frameMessage" maxlength="46" value="BUILD SOMETHING THAT MATTERS">
+          </label>
+          <label>
+            <span>YOUR HANDLE</span>
+            <input id="handleInput" maxlength="28" placeholder="@yourhandle">
+          </label>
+        </div>
+
+        <div class="tips-banner">
+          <span class="tips-icon">💡</span>
+          <div><b>Tip:</b> Works with portrait, landscape, square — anything works.</div>
+        </div>
+      </aside>
+
+      <section class="panel preview-panel">
+        <div class="panel-head preview-head">
+          <div>
+            <span class="step">02</span>
+            <h2>Preview</h2>
+          </div>
+          <div class="status-indicator">
+            <span id="statusDot" class="status-dot waiting"></span>
+            <span id="statusText">Waiting for photo</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-shell" id="canvasShell">
+            <canvas id="outputCanvas" width="1200" height="1500"></canvas>
+            <div id="emptyState" class="empty-state">
+              <div class="empty-logo">
+                <div class="logo-mark">HH</div>
+                <div class="logo-text">GOA 2026</div>
+              </div>
+              <p>Your frame will<br>appear here</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="action secondary" id="downloadBtn" disabled title="Download as PNG">
+            <span class="action-icon">↓</span>
+            <span class="action-label">Download PNG</span>
+          </button>
+          <button class="action primary" id="shareBtn" disabled title="Share to X">
+            <span class="action-icon">↗</span>
+            <span class="action-label">Share to X</span>
+          </button>
+        </div>
+        <p class="share-note">Caption: “Building in Goa. 🌴 #FrameInGoa #HHGoa2026”</p>
+      </section>
+    </section>
+
+    <section class="how-it-works">
+      <div class="how-item">
+        <div class="how-number">01</div>
+        <div class="how-content">
+          <strong>Upload</strong>
+          <small>Any photo format</small>
+        </div>
+      </div>
+      <div class="how-arrow">→</div>
+      <div class="how-item">
+        <div class="how-number">02</div>
+        <div class="how-content">
+          <strong>Customize</strong>
+          <small>Add your details</small>
+        </div>
+      </div>
+      <div class="how-arrow">→</div>
+      <div class="how-item">
+        <div class="how-number">03</div>
+        <div class="how-content">
+          <strong>Share</strong>
+          <small>Download or post</small>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>LESS NOISE. MORE SIGNAL.</span>
+    <span>© HH GOA 2026 · <a href="https://hhgoa.com/" target="_blank" rel="noreferrer">HACKER HOUSE GOA</a></span>
+    <span>#FRAMEINGOA</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
