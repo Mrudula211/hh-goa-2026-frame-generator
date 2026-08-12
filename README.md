@@ -4,8 +4,6 @@ Upload a photo, get back a branded HH Goa 2026 graphic, download or post it to X
 
 **Live:** _add your deployed link here once it's up (Vercel/Netlify/GitHub Pages — see [Deploy](#deploy))_
 
-![HH Goa 2026 Builder ID](docs/preview-builder-id.png)
-
 ## What it does
 
 Two formats, either one satisfies the brief on its own — this project ships both:
@@ -43,13 +41,12 @@ The rest of the site (header, hero, panels, buttons, footer) is original CSS/SVG
 Vanilla HTML/CSS/JS. No framework, no build step, no dependencies beyond one CDN script (`heic2any`, loaded only when a HEIC file is uploaded) and Google Fonts.
 
 ```
-index.html                    Markup + inline SVG icons
-styles.css                    All styling (CSS custom properties for the palette)
-app.js                        Canvas rendering, upload handling, download/share
-favicon.svg                   Site favicon
-assets/id-template.png        Canva export with the photo-hole cut out
-docs/preview-builder-id.png   Sample render, used in this README
-package.json                  Just a `python -m http.server` convenience script
+index.html               Markup + inline SVG icons
+styles.css               All styling (CSS custom properties for the palette)
+app.js                   Canvas rendering, upload handling, download/share
+favicon.svg              Site favicon
+assets/id-template.png   Canva export with the photo-hole cut out
+package.json             Just a `python -m http.server` convenience script
 ```
 
 ## Run locally
