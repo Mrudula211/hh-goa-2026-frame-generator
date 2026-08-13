@@ -327,6 +327,31 @@ function isMobileShareTarget(){
   return coarse || mobileUA;
 }
 
+function toast(text, bg = "#0B6839") {
+  const msg=document.createElement("div");
+  msg.style.cssText=`position:fixed;top:16px;right:16px;background:${bg};color:white;padding:14px 16px;border-radius:4px;font-size:11px;z-index:1000;font-family:DM Sans;font-weight:500;box-shadow:0 8px 24px rgba(8,78,43,.25);max-width:320px;line-height:1.5`;
+  msg.textContent=text;
+  document.body.appendChild(msg);
+  setTimeout(()=>msg.remove(),6000);
+}
+
+function blobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function downloadBlob(blob){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="HH-Goa-2026.png";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
 shareBtn.addEventListener("click",async()=>{
   const blob=await canvasBlob();
   const file=new File([blob],"HH-Goa-2026.png",{type:"image/png"});
@@ -341,25 +366,40 @@ shareBtn.addEventListener("click",async()=>{
     }catch(err){ if(err.name==="AbortError")return; }
   }
 
-  // Desktop: auto-download the PNG, then open X directly with the caption
-  // pre-filled. X's web compose window has no way to accept a pre-attached
-  // image from a URL (no backend here to host one), so the file still needs
-  // one manual attach — but the OS share-sheet detour is skipped entirely.
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="HH-Goa-2026.png";
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  // Desktop: upload the generated PNG to get a public image URL, then open X
+  // pointed at our own share page (which carries og:image/twitter:image meta
+  // tags for that URL). X's crawler reads those tags and shows the actual
+  // graphic as the tweet's link-preview card automatically — no manual
+  // download/attach needed.
+  const originalLabel=shareBtn.querySelector(".action-label")?.textContent;
+  shareBtn.disabled=true;
+  if(shareBtn.querySelector(".action-label"))shareBtn.querySelector(".action-label").textContent="Preparing…";
 
-  const intent=`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`;
-  window.open(intent,"_blank","noopener,noreferrer");
+  try{
+    const dataUrl=await blobToDataUrl(blob);
+    const res=await fetch("/api/upload",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({image:dataUrl}),
+    });
+    if(!res.ok)throw new Error("upload failed: "+res.status);
+    const {url:imageUrl}=await res.json();
+    if(!imageUrl)throw new Error("no image url returned");
 
-  // Show informational toast
-  const msg=document.createElement("div");
-  msg.style.cssText="position:fixed;top:16px;right:16px;background:#0B6839;color:white;padding:14px 16px;border-radius:4px;font-size:11px;z-index:1000;font-family:DM Sans;font-weight:500;box-shadow:0 8px 24px rgba(8,78,43,.25);max-width:320px;line-height:1.5";
-  msg.textContent="Image downloaded and X is opening with your caption ready — attach the downloaded PNG to the post.";
-  document.body.appendChild(msg);
-  setTimeout(()=>msg.remove(),6000);
+    const sharePageUrl=`${location.origin}/api/share?img=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(caption)}`;
+    const intent=`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}&url=${encodeURIComponent(sharePageUrl)}`;
+    window.open(intent,"_blank","noopener,noreferrer");
+    toast("X is opening with your Builder ID attached as a preview — post away.");
+  }catch(err){
+    console.error("Auto-attach failed, falling back to download:",err);
+    downloadBlob(blob);
+    const intent=`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`;
+    window.open(intent,"_blank","noopener,noreferrer");
+    toast("Couldn't auto-attach the image, so it's downloaded instead — attach it to the post that just opened.","#FF0080");
+  }finally{
+    shareBtn.disabled=false;
+    if(originalLabel && shareBtn.querySelector(".action-label"))shareBtn.querySelector(".action-label").textContent=originalLabel;
+  }
 });
 window.addEventListener("beforeunload",()=>objectUrl&&URL.revokeObjectURL(objectUrl));
 render();
