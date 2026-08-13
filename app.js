@@ -318,7 +318,7 @@ downloadBtn.addEventListener("click",async()=>{
 shareBtn.addEventListener("click",async()=>{
   const blob=await canvasBlob();
   const file=new File([blob],"HH-Goa-2026.png",{type:"image/png"});
-  const caption="Building in Goa. 🌴 #FrameInGoa #HHGoa2026";
+  const caption="Locked in my HH Goa 2026 Builder ID 🌴 Built it myself, pixel-matched to the real HHGoa card.\nYour turn — make yours here: https://hh-goa-2026-frame-generator-ten.vercel.app/\n#FrameInGoa #HHGoa2026 @247pmstudio";
   try{
     if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
       await navigator.share({title:"HH Goa 2026 Builder ID",text:caption,files:[file]});

@@ -2,7 +2,7 @@
 
 Upload a photo, get back a branded HH Goa 2026 graphic, download or post it to X — all in the browser, no signup, no backend. Built for the HH Goa 2026 shortlisting task.
 
-**Live:** (https://hh-goa-2026-frame-generator-ten.vercel.app/)
+**Live:** https://hh-goa-2026-frame-generator-ten.vercel.app/
 
 ## What it does
 
