@@ -315,27 +315,51 @@ downloadBtn.addEventListener("click",async()=>{
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 });
+// Only phones/tablets get the native OS share sheet (there the sheet reliably
+// offers X/Twitter as a target and can hand it the image directly). Desktop
+// OSes (Windows, macOS) also implement navigator.share, but their share sheets
+// rarely register X as a target — so on desktop we skip straight to opening
+// X itself with the caption ready, rather than dropping the user into a
+// share sheet with no useful destination in it.
+function isMobileShareTarget(){
+  const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  const mobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return coarse || mobileUA;
+}
+
 shareBtn.addEventListener("click",async()=>{
   const blob=await canvasBlob();
   const file=new File([blob],"HH-Goa-2026.png",{type:"image/png"});
   const caption="Locked in my HH Goa 2026 Builder ID 🌴 Built it myself, pixel-matched to the real HHGoa card.\nYour turn — make yours here: https://hh-goa-2026-frame-generator-ten.vercel.app/\n#FrameInGoa #HHGoa2026 @247pmstudio";
-  try{
-    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-      await navigator.share({title:"HH Goa 2026 Builder ID",text:caption,files:[file]});
-      return;
-    }
-  }catch(err){ if(err.name==="AbortError")return; }
-  
-  // Desktop fallback
+
+  if(isMobileShareTarget()){
+    try{
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({title:"HH Goa 2026 Builder ID",text:caption,files:[file]});
+        return;
+      }
+    }catch(err){ if(err.name==="AbortError")return; }
+  }
+
+  // Desktop: auto-download the PNG, then open X directly with the caption
+  // pre-filled. X's web compose window has no way to accept a pre-attached
+  // image from a URL (no backend here to host one), so the file still needs
+  // one manual attach — but the OS share-sheet detour is skipped entirely.
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="HH-Goa-2026.png";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+
   const intent=`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`;
   window.open(intent,"_blank","noopener,noreferrer");
-  
+
   // Show informational toast
   const msg=document.createElement("div");
   msg.style.cssText="position:fixed;top:16px;right:16px;background:#0B6839;color:white;padding:14px 16px;border-radius:4px;font-size:11px;z-index:1000;font-family:DM Sans;font-weight:500;box-shadow:0 8px 24px rgba(8,78,43,.25);max-width:320px;line-height:1.5";
-  msg.textContent="X is opening in a new tab. Download your PNG and attach it to the pre-filled post.";
+  msg.textContent="Image downloaded and X is opening with your caption ready — attach the downloaded PNG to the post.";
   document.body.appendChild(msg);
-  setTimeout(()=>msg.remove(),5000);
+  setTimeout(()=>msg.remove(),6000);
 });
 window.addEventListener("beforeunload",()=>objectUrl&&URL.revokeObjectURL(objectUrl));
 render();
