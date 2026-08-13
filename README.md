@@ -59,16 +59,6 @@ python -m http.server 5500
 
 Then visit `http://localhost:5500`.
 
-## Deploy
-
-Static site — deploy anywhere that serves files:
-
-- **Vercel** — [vercel.com/new](https://vercel.com/new), drag in this folder or `vercel deploy` from inside it.
-- **Netlify** — [app.netlify.com/drop](https://app.netlify.com/drop), drag the folder in.
-- **GitHub Pages** — push this repo, then enable Pages on the `main` branch in Settings.
-
-No environment variables or config needed.
-
 ## Known limitation: desktop share
 
 Browsers don't let a webpage programmatically attach a local file to X's web-intent URL, and a purely static site can't generate a unique per-image Open Graph preview without a backend. So:
